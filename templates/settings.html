@@ -1,0 +1,340 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h2>System Settings</h2>
+        <p class="text-muted">Configure DQN model parameters, network simulation, and defense mechanisms</p>
+    </div>
+</div>
+
+<div class="row">
+    <!-- DQN Model Configuration -->
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-brain me-1"></i>
+                DQN Model Configuration
+            </div>
+            <div class="card-body">
+                <form id="dqnForm">
+                    <h6 class="mb-3">Hyperparameters</h6>
+                    
+                    <div class="mb-3">
+                        <label for="gamma" class="form-label">Discount Factor (γ)</label>
+                        <input type="range" class="form-range" min="0.5" max="0.99" step="0.01" id="gamma" value="0.95">
+                        <div class="d-flex justify-content-between">
+                            <small>0.5</small>
+                            <small id="gammaValue">0.95</small>
+                            <small>0.99</small>
+                        </div>
+                        <small class="form-text text-muted">Controls how much future rewards are valued compared to immediate rewards</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="epsilon" class="form-label">Current Exploration Rate (ε)</label>
+                        <input type="range" class="form-range" min="0.01" max="1" step="0.01" id="epsilon" value="0.1">
+                        <div class="d-flex justify-content-between">
+                            <small>0.01</small>
+                            <small id="epsilonValue">0.1</small>
+                            <small>1.0</small>
+                        </div>
+                        <small class="form-text text-muted">Controls the balance between exploration and exploitation</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="epsilonDecay" class="form-label">Epsilon Decay Rate</label>
+                        <input type="range" class="form-range" min="0.9" max="0.999" step="0.001" id="epsilonDecay" value="0.995">
+                        <div class="d-flex justify-content-between">
+                            <small>0.9</small>
+                            <small id="epsilonDecayValue">0.995</small>
+                            <small>0.999</small>
+                        </div>
+                        <small class="form-text text-muted">Rate at which exploration decreases over time</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="learningRate" class="form-label">Learning Rate</label>
+                        <input type="range" class="form-range" min="0.0001" max="0.01" step="0.0001" id="learningRate" value="0.001">
+                        <div class="d-flex justify-content-between">
+                            <small>0.0001</small>
+                            <small id="learningRateValue">0.001</small>
+                            <small>0.01</small>
+                        </div>
+                        <small class="form-text text-muted">Controls how quickly the model adapts to new information</small>
+                    </div>
+                    
+                    <h6 class="mb-3 mt-4">Training Settings</h6>
+                    
+                    <div class="mb-3">
+                        <label for="batchSize" class="form-label">Batch Size</label>
+                        <select class="form-select" id="batchSize">
+                            <option value="16">16</option>
+                            <option value="32" selected>32</option>
+                            <option value="64">64</option>
+                            <option value="128">128</option>
+                        </select>
+                        <small class="form-text text-muted">Number of experiences to learn from in each training step</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="memorySize" class="form-label">Memory Size</label>
+                        <select class="form-select" id="memorySize">
+                            <option value="1000">1,000</option>
+                            <option value="2000" selected>2,000</option>
+                            <option value="5000">5,000</option>
+                            <option value="10000">10,000</option>
+                        </select>
+                        <small class="form-text text-muted">Maximum number of experiences to store</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="targetUpdateFreq" class="form-label">Target Network Update Frequency</label>
+                        <select class="form-select" id="targetUpdateFreq">
+                            <option value="5">Every 5 episodes</option>
+                            <option value="10" selected>Every 10 episodes</option>
+                            <option value="20">Every 20 episodes</option>
+                            <option value="50">Every 50 episodes</option>
+                        </select>
+                        <small class="form-text text-muted">How often to update the target network</small>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary mt-3">Save DQN Settings</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Network Simulation Settings -->
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-network-wired me-1"></i>
+                Network Simulation Settings
+            </div>
+            <div class="card-body">
+                <form id="simulationForm">
+                    <h6 class="mb-3">Topology Settings</h6>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="numNodes" class="form-label">Hosts</label>
+                            <input type="number" class="form-control" id="numNodes" min="5" max="50" value="20">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="numRouters" class="form-label">Routers</label>
+                            <input type="number" class="form-control" id="numRouters" min="1" max="10" value="3">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="numServers" class="form-label">Servers</label>
+                            <input type="number" class="form-control" id="numServers" min="1" max="10" value="2">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="simulationSpeed" class="form-label">Simulation Speed</label>
+                        <input type="range" class="form-range" min="0.1" max="2" step="0.1" id="simulationSpeed" value="1.0">
+                        <div class="d-flex justify-content-between">
+                            <small>0.1x (Slow)</small>
+                            <small id="simulationSpeedValue">1.0x</small>
+                            <small>2.0x (Fast)</small>
+                        </div>
+                    </div>
+                    
+                    <h6 class="mb-3 mt-4">Attack Settings</h6>
+                    
+                    <div class="mb-3">
+                        <label for="attackProbability" class="form-label">Attack Probability</label>
+                        <input type="range" class="form-range" min="0" max="0.1" step="0.01" id="attackProbability" value="0.01">
+                        <div class="d-flex justify-content-between">
+                            <small>0 (Never)</small>
+                            <small id="attackProbabilityValue">0.01</small>
+                            <small>0.1 (Frequent)</small>
+                        </div>
+                        <small class="form-text text-muted">Probability of an attack starting in any given cycle</small>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="attackDurationMin" class="form-label">Min Duration (sec)</label>
+                            <input type="number" class="form-control" id="attackDurationMin" min="10" max="300" value="30">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="attackDurationMax" class="form-label">Max Duration (sec)</label>
+                            <input type="number" class="form-control" id="attackDurationMax" min="10" max="300" value="120">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="maxAttackers" class="form-label">Max Attackers</label>
+                        <input type="number" class="form-control" id="maxAttackers" min="1" max="50" value="10">
+                        <small class="form-text text-muted">Maximum number of hosts that can participate in an attack</small>
+                    </div>
+                    
+                    <h6 class="mb-3 mt-4">Traffic Settings</h6>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="normalTrafficMin" class="form-label">Normal Traffic (min pps)</label>
+                            <input type="number" class="form-control" id="normalTrafficMin" min="1" max="100" value="10">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="normalTrafficMax" class="form-label">Normal Traffic (max pps)</label>
+                            <input type="number" class="form-control" id="normalTrafficMax" min="1" max="100" value="50">
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="attackTrafficMin" class="form-label">Attack Traffic (min pps)</label>
+                            <input type="number" class="form-control" id="attackTrafficMin" min="100" max="5000" value="500">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="attackTrafficMax" class="form-label">Attack Traffic (max pps)</label>
+                            <input type="number" class="form-control" id="attackTrafficMax" min="100" max="5000" value="2000">
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary mt-3">Save Simulation Settings</button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Defense Thresholds -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-shield-alt me-1"></i>
+                Defense Thresholds
+            </div>
+            <div class="card-body">
+                <form id="thresholdsForm">
+                    <div class="mb-3">
+                        <label for="packetRateThreshold" class="form-label">Packet Rate Threshold (pps)</label>
+                        <input type="number" class="form-control" id="packetRateThreshold" min="100" max="5000" value="500">
+                        <small class="form-text text-muted">Packets per second threshold for attack detection</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="connectionThreshold" class="form-label">Connection Threshold</label>
+                        <input type="number" class="form-control" id="connectionThreshold" min="50" max="1000" value="200">
+                        <small class="form-text text-muted">Simultaneous connection threshold for attack detection</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="synRatioThreshold" class="form-label">SYN Ratio Threshold</label>
+                        <input type="range" class="form-range" min="0.1" max="1" step="0.05" id="synRatioThreshold" value="0.8">
+                        <div class="d-flex justify-content-between">
+                            <small>0.1</small>
+                            <small id="synRatioThresholdValue">0.8</small>
+                            <small>1.0</small>
+                        </div>
+                        <small class="form-text text-muted">SYN to total packet ratio threshold for attack detection</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="entropyThreshold" class="form-label">IP Entropy Threshold</label>
+                        <input type="range" class="form-range" min="1" max="10" step="0.5" id="entropyThreshold" value="5.0">
+                        <div class="d-flex justify-content-between">
+                            <small>1.0</small>
+                            <small id="entropyThresholdValue">5.0</small>
+                            <small>10.0</small>
+                        </div>
+                        <small class="form-text text-muted">Source IP entropy threshold for attack detection</small>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary mt-3">Save Defense Thresholds</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Status Section -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-server me-1"></i>
+                System Status
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="status-indicator status-normal me-2" id="postgresStatus"></div>
+                            <div>
+                                <h6 class="mb-0">PostgreSQL Database</h6>
+                                <small id="postgresStatusText">Connected</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="status-indicator status-normal me-2" id="mongoStatus"></div>
+                            <div>
+                                <h6 class="mb-0">MongoDB Database</h6>
+                                <small id="mongoStatusText">Connected</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="status-indicator status-normal me-2" id="neo4jStatus"></div>
+                            <div>
+                                <h6 class="mb-0">Neo4j Database</h6>
+                                <small id="neo4jStatusText">Connected</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mt-3">
+                    <div class="col-md-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="status-indicator status-normal me-2" id="simulationStatus"></div>
+                            <div>
+                                <h6 class="mb-0">Network Simulation</h6>
+                                <small id="simulationStatusText">Running</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="status-indicator status-normal me-2" id="detectorStatus"></div>
+                            <div>
+                                <h6 class="mb-0">Attack Detector</h6>
+                                <small id="detectorStatusText">Active</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="status-indicator status-normal me-2" id="dqnStatus"></div>
+                            <div>
+                                <h6 class="mb-0">DQN Model</h6>
+                                <small id="dqnStatusText">Trained</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="d-flex mt-3">
+                    <button id="resetSimulation" class="btn btn-warning me-2">
+                        <i class="fas fa-redo"></i> Reset Simulation
+                    </button>
+                    <button id="resetDQN" class="btn btn-danger me-2">
+                        <i class="fas fa-trash"></i> Reset DQN Model
+                    </button>
+                    <button id="checkStatus" class="btn btn-primary">
+                        <i class="fas fa-sync"></i> Check Status
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/settings.js') }}"></script>
+{% endblock %}

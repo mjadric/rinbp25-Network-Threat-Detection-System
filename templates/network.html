@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+
+{% block head_extra %}
+<!-- D3.js for network visualization -->
+<script src="https://d3js.org/d3.v7.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h2>Network Visualization</h2>
+        <p class="text-muted">Visual representation of network topology and attack paths</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-project-diagram me-1"></i>
+                Network Topology
+            </div>
+            <div class="card-body p-2">
+                <div id="network-visualization"></div>
+            </div>
+            <div class="card-footer small text-muted">
+                <i class="fas fa-info-circle me-1"></i>
+                Drag nodes to rearrange. Zoom with mouse wheel. Red lines indicate attack paths.
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-route me-1"></i>
+                Attack Paths
+            </div>
+            <div class="card-body">
+                <div id="attack-paths-info">
+                    <div class="alert alert-info">No active attack paths detected</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-info-circle me-1"></i>
+                Network Information
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <tbody>
+                            <tr>
+                                <th scope="row">Total Nodes</th>
+                                <td id="totalNodes">0</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Routers</th>
+                                <td id="routerCount">0</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Servers</th>
+                                <td id="serverCount">0</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Hosts</th>
+                                <td id="hostCount">0</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Attackers</th>
+                                <td id="attackerCount">0</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Victims</th>
+                                <td id="victimCount">0</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Connections</th>
+                                <td id="connectionCount">0</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Attack Connections</th>
+                                <td id="attackConnectionCount">0</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Network Explanation -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-book-open me-1"></i>
+                About the Network Visualization
+            </div>
+            <div class="card-body">
+                <p>This visualization shows the current state of the network and any ongoing DDoS attacks:</p>
+                
+                <h6>Node Types</h6>
+                <ul>
+                    <li><strong>Hosts</strong> (teal) - Regular client computers</li>
+                    <li><strong>Routers</strong> (dark blue) - Network routing devices</li>
+                    <li><strong>Servers</strong> (blue) - Server machines that provide services</li>
+                    <li><strong>Attackers</strong> (red) - Hosts participating in DDoS attacks</li>
+                    <li><strong>Victims</strong> (yellow) - Servers being targeted by attacks</li>
+                </ul>
+                
+                <h6>Connection Types</h6>
+                <ul>
+                    <li><strong>Normal Connections</strong> (gray) - Regular network traffic</li>
+                    <li><strong>Attack Paths</strong> (red) - Paths that attack traffic is following</li>
+                </ul>
+                
+                <p>The network is monitored in real-time, and any suspicious activity is analyzed by the DQN-based 
+                detection system. When an attack is detected, the system will highlight the attack paths and 
+                trigger appropriate defensive measures.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/network_visualization.js') }}"></script>
+<script>
+    // Update network information table
+    function updateNetworkInfo() {
+        fetch('/api/network')
+            .then(response => response.json())
+            .then(data => {
+                const nodes = data.nodes;
+                const links = data.links;
+                
+                // Count node types
+                let routers = 0, servers = 0, hosts = 0, attackers = 0, victims = 0;
+                nodes.forEach(node => {
+                    if (node.type === 'router') routers++;
+                    else if (node.type === 'server') servers++;
+                    else hosts++;
+                    
+                    if (node.is_attacker) attackers++;
+                    if (node.is_victim) victims++;
+                });
+                
+                // Count attack connections
+                let attackConnections = 0;
+                links.forEach(link => {
+                    if (link.is_attack_path) attackConnections++;
+                });
+                
+                // Update DOM
+                document.getElementById('totalNodes').textContent = nodes.length;
+                document.getElementById('routerCount').textContent = routers;
+                document.getElementById('serverCount').textContent = servers;
+                document.getElementById('hostCount').textContent = hosts;
+                document.getElementById('attackerCount').textContent = attackers;
+                document.getElementById('victimCount').textContent = victims;
+                document.getElementById('connectionCount').textContent = links.length;
+                document.getElementById('attackConnectionCount').textContent = attackConnections;
+            })
+            .catch(error => console.error('Error updating network info:', error));
+    }
+    
+    // Call initially and set interval
+    updateNetworkInfo();
+    setInterval(updateNetworkInfo, 5000);
+</script>
+{% endblock %}
